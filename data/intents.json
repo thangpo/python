@@ -1,0 +1,52 @@
+{
+    "intents": [
+        {
+            "tag": "greeting",
+            "patterns": [
+                "xin chào",
+                "chào",
+                "hi",
+                "hello"
+            ],
+            "responses": [
+                "Xin chào! Rất vui được trò chuyện với bạn!",
+                "Chào bạn!"
+            ]
+        },
+        {
+            "tag": "goodbye",
+            "patterns": [
+                "tạm biệt",
+                "bye",
+                "hẹn gặp lại"
+            ],
+            "responses": [
+                "Tạm biệt! Hẹn gặp lại nhé!",
+                "Bye bye!"
+            ]
+        },
+        {
+            "tag": "thanks",
+            "patterns": [
+                "cảm ơn",
+                "thanks",
+                "cám ơn"
+            ],
+            "responses": [
+                "Không có gì!",
+                "Rất vui được giúp bạn!"
+            ]
+        },
+        {
+            "tag": "about",
+            "patterns": [
+                "bạn là ai",
+                "ai tạo ra bạn",
+                "bạn làm gì"
+            ],
+            "responses": [
+                "Tôi là một chatbot AI được tạo bằng Python. Tôi ở đây để trả lời các câu hỏi của bạn!"
+            ]
+        }
+    ]
+}
