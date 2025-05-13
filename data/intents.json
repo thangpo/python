@@ -47,6 +47,19 @@
             "responses": [
                 "Tôi là một chatbot AI được tạo bằng Python. Tôi ở đây để trả lời các câu hỏi của bạn!"
             ]
+        },
+        {
+            "tag": "weather",
+            "patterns": [
+                "thời tiết hôm nay thế nào",
+                "dự báo thời tiết",
+                "trời có mưa không",
+                "thời tiết ở Hà Nội",
+                "thời tiết ở TP.HCM"
+            ],
+            "responses": [
+                "Để tôi kiểm tra thời tiết cho bạn..."
+            ]
         }
     ]
 }

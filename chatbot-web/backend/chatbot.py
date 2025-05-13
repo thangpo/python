@@ -6,6 +6,10 @@ from sklearn.svm import LinearSVC
 from sklearn.pipeline import make_pipeline
 from pyvi import ViTokenizer
 import string
+import requests
+
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 # Định nghĩa dữ liệu intents (ý định)
 intents = {
@@ -29,9 +33,22 @@ intents = {
             "tag": "about",
             "patterns": ["bạn là ai", "ai tạo ra bạn", "bạn làm gì"],
             "responses": ["Tôi là một chatbot AI được tạo bằng Python. Tôi ở đây để trả lời các câu hỏi của bạn!"]
-        }
+        },
+        {
+            "tag": "weather",
+            "patterns": [
+                "thời tiết hôm nay thế nào",
+                "dự báo thời tiết",
+                "trời có mưa không",
+                "thời tiết ở Hà Nội",
+                "thời tiết ở TP.HCM"
+            ],
+            "responses": ["Để tôi kiểm tra thời tiết cho bạn..."]
+        },
     ]
 }
+
+OPENWEATHER_API_KEY = '2d5d17fa4dfbe09e488c3b9cc2485a98'
 
 # Lưu intents vào file JSON
 os.makedirs('data', exist_ok=True)
@@ -47,6 +64,18 @@ def preprocess_text(text):
     tokens = [t for t in tokens if t not in vietnamese_stopwords]
     return ' '.join(tokens)
 
+def get_weather(city='Hanoi'):
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&lang=vi&units=metric'
+    try:
+        res = requests.get(url)
+        data = res.json()
+        if data.get('cod') != 200:
+            return "Xin lỗi, tôi không lấy được thông tin thời tiết."
+        desc = data['weather'][0]['description']
+        temp = data['main']['temp']
+        return f"Thời tiết tại {city}: {desc}, nhiệt độ {temp}°C."
+    except:
+        return "Xin lỗi, tôi không lấy được thông tin thời tiết."
 # Chuẩn bị dữ liệu huấn luyện
 X_train = []
 y_train = []
@@ -67,7 +96,16 @@ def predict_intent(text):
     return pipeline.predict([processed_text])[0]
 
 # Hàm trả lời
-def get_response(intent):
+def get_response(intent, user_message=None):
+    if intent == "weather":
+        # Tìm tên thành phố trong user_message nếu có
+        city = "Hanoi"
+        if user_message:
+            if "hồ chí minh" in user_message.lower() or "tp.hcm" in user_message.lower():
+                city = "Ho Chi Minh City"
+            elif "hà nội" in user_message.lower():
+                city = "Hanoi"
+        return get_weather(city)
     for intent_data in intents['intents']:
         if intent_data['tag'] == intent:
             return np.random.choice(intent_data['responses'])
@@ -86,5 +124,15 @@ def run_chatbot():
         print(f"Chatbot: {response}")
 
 # Chạy chatbot
-if __name__ == "__main__":
-    run_chatbot()
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    user_message = request.json.get('message')
+    intent = predict_intent(user_message)
+    bot_reply = get_response(intent)
+    return jsonify({'reply': bot_reply})
+
+if __name__ == '__main__':
+    app.run(debug=True)
